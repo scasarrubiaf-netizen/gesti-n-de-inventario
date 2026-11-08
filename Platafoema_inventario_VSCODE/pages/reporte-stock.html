@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Crítico | Inventarios</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(56,189,248,0.15);
+            color: #38bdf8;
+            border-left: 3px solid #38bdf8;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        /* Resumen */
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .resumen-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .resumen-card span:first-child {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .resumen-card span:last-child {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .resumen-card.alerta span:last-child { color: #dc2626; }
+
+        /* Tabla */
+        .tabla-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .tabla-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tabla-header h3 { font-size: 15px; color: #1e293b; }
+
+        .btn-actualizar {
+            padding: 7px 14px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .btn-actualizar:hover { background: #e2e8f0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fef9f9; }
+
+        .nivel-critico {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .nivel-agotado { background: #fee2e2; color: #dc2626; }
+        .nivel-bajo { background: #fef3c7; color: #92400e; }
+
+        .barra-stock {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .barra-bg {
+            flex: 1;
+            background: #f1f5f9;
+            border-radius: 4px;
+            height: 6px;
+        }
+
+        .barra-fill-stock {
+            background: #dc2626;
+            border-radius: 4px;
+            height: 6px;
+            max-width: 100%;
+        }
+
+        .sin-datos {
+            text-align: center;
+            padding: 50px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .sin-datos span { font-size: 40px; display: block; margin-bottom: 10px; }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>📦 Inventarios</h2>
+        <p id="rolUsuario"></p>
+    </div>
+    <nav class="menu" id="menuNav">
+        <!-- se llena según el rol -->
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>⚠️ Reporte de Stock Crítico</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="resumen-grid">
+        <div class="resumen-card alerta">
+            <span>Productos en estado crítico</span>
+            <span id="totalCriticos">0</span>
+        </div>
+        <div class="resumen-card">
+            <span>Producto más crítico</span>
+            <span id="masCritico" style="font-size: 15px;">—</span>
+        </div>
+        <div class="resumen-card">
+            <span>Total productos revisados</span>
+            <span id="totalProductos">0</span>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-container">
+        <div class="tabla-header">
+            <h3>Productos con stock bajo o agotado</h3>
+            <button class="btn-actualizar" onclick="cargarReporte()">🔄 Actualizar</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Stock actual</th>
+                    <th>Stock mínimo</th>
+                    <th>Nivel</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCriticos"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<script src="../js/reporte-stock.js"></script>
+<script>
+    // ===== PROTECCIÓN: admin y empleado pueden ver esta página =====
+    const rol = localStorage.getItem("rol");
+    const usuario = localStorage.getItem("usuario");
+
+    if (!rol || !usuario) {
+        window.location.href = "../login.html";
+    }
+
+    // Menú según rol
+    const menuNav = document.getElementById("menuNav");
+    document.getElementById("rolUsuario").textContent = rol === "ADMIN" ? "Administrador" : "Empleado";
+
+    if (rol === "ADMIN") {
+        menuNav.innerHTML = `
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="productos.html">📦 Productos</a>
+            <a href="movimientos.html">🔄 Movimientos</a>
+            <a href="categorias.html">🗂 Categorías</a>
+            <a href="estadisticas.html">📈 Estadísticas</a>
+            <a href="productos-mas-vendidos.html">🏆 Más vendidos</a>
+            <a href="reporte-stock.html" class="active">📉 Reporte stock</a>
+            <a href="valor-inventario.html">💰 Valor inventario</a>
+        `;
+    } else {
+        menuNav.innerHTML = `
+            <a href="ventas.html">🧾 Ventas</a>
+            <a href="reporte-stock.html" class="active">⚠️ Stock crítico</a>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("rol");
+        window.location.href = "../login.html";
+    }
+</script>
+</body>
+</html>

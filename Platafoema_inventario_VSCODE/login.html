@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario TCC 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            background: #0f172a;
+        }
+
+        /* ===== LADO IZQUIERDO ===== */
+        .panel-izquierdo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-izquierdo::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 50%;
+        }
+
+        .panel-izquierdo::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            right: 0;
+            width: 350px;
+            height: 350px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 50%;
+        }
+
+        .logo-area {
+            z-index: 1;
+            margin-bottom: 48px;
+        }
+
+        .logo-icono {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-area h1 {
+            font-size: 34px;
+            color: white;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .logo-area p {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.6;
+            max-width: 340px;
+        }
+
+        .features {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .feature-item .icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Línea divisora vertical */
+        .divider-vertical {
+            width: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 40px 0;
+        }
+
+        /* ===== LADO DERECHO ===== */
+        .panel-derecho {
+            width: 460px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 48px;
+        }
+
+        .panel-derecho h2 {
+            font-size: 22px;
+            color: white;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .panel-derecho .subtitulo {
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 32px;
+        }
+
+        /* Selector de rol */
+        .opciones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .btn-rol {
+            padding: 16px 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-rol span:first-child { font-size: 26px; }
+
+        .btn-rol:hover {
+            border-color: rgba(255,255,255,0.2);
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.07);
+        }
+
+        .btn-rol.seleccionado {
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Formulario */
+        .form-login { display: none; }
+        .form-login.visible { display: block; }
+
+        .sep {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sep hr {
+            flex: 1;
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .sep span {
+            font-size: 12px;
+            color: #334155;
+        }
+
+        .form-grupo { margin-bottom: 14px; }
+
+        .form-grupo label {
+            display: block;
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .form-grupo input {
+            width: 100%;
+            padding: 12px 12px 12px 36px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: rgba(255,255,255,0.04);
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .form-grupo input::placeholder { color: #334155; }
+
+        .form-grupo input:focus {
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.07);
+        }
+
+        .btn-entrar {
+            width: 100%;
+            padding: 13px;
+            background: white;
+            color: #0f172a;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-entrar:hover {
+            background: #f1f5f9;
+            box-shadow: 0 4px 16px rgba(255,255,255,0.1);
+        }
+
+        .error {
+            color: #f87171;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 18px;
+            text-align: center;
+        }
+
+        .volver {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #334155;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .volver:hover { color: #64748b; }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #1e293b;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== IZQUIERDO ===== -->
+<div class="panel-izquierdo">
+    <div class="logo-area">
+        <div class="logo-icono">📦</div>
+        <h1>Inventario TCC</h1>
+        <p>Sistema completo de gestión de inventarios, ventas y control de stock en tiempo real.</p>
+    </div>
+
+    <div class="features">
+        <div class="feature-item">
+            <div class="icon">📊</div>
+            <span>Dashboard con resumen en tiempo real</span>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🔄</div>
+            <span>Movimientos automáticos de inventario</span>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🧾</div>
+            <span>Punto de venta con generación de factura</span>
+        </div>
+        <div class="feature-item">
+            <div class="icon">⚠️</div>
+            <span>Alertas de stock crítico</span>
+        </div>
+        <div class="feature-item">
+            <div class="icon">👥</div>
+            <span>Gestión de roles y usuarios</span>
+        </div>
+    </div>
+</div>
+
+<!-- Línea divisora -->
+<div class="divider-vertical"></div>
+
+<!-- ===== DERECHO ===== -->
+<div class="panel-derecho">
+    <h2>Bienvenido</h2>
+    <p class="subtitulo">Selecciona tu tipo de acceso</p>
+
+    <div class="opciones">
+        <button class="btn-rol" onclick="seleccionarRol('ADMIN', this)">
+            <span>🔐</span>
+            <span>Administrador</span>
+        </button>
+        <button class="btn-rol" onclick="seleccionarRol('EMPLEADO', this)">
+            <span>👤</span>
+            <span>Empleado</span>
+        </button>
+    </div>
+
+    <div class="form-login" id="formLogin">
+        <div class="sep">
+            <hr><span id="tituloForm"></span><hr>
+        </div>
+
+        <div class="form-grupo">
+            <label>Usuario</label>
+            <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="username" placeholder="Nombre de usuario" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="form-grupo">
+            <label>Contraseña</label>
+            <div class="input-wrapper">
+                <span class="input-icon">🔑</span>
+                <input type="password" id="password" placeholder="••••••••"
+                    onkeyup="if(event.key==='Enter') iniciarSesion()">
+            </div>
+        </div>
+
+        <button class="btn-entrar" onclick="iniciarSesion()">Entrar →</button>
+        <p class="error" id="errorMsg"></p>
+        <a class="volver" onclick="volverOpciones()">← Cambiar tipo de acceso</a>
+    </div>
+
+    <p class="footer">TCC 2026 · Todos los derechos reservados</p>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>

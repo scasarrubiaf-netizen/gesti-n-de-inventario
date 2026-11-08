@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(56,189,248,0.15);
+            color: #38bdf8;
+            border-left: 3px solid #38bdf8;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        .page-header span { font-size: 13px; color: #64748b; }
+
+        .pos-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+        }
+
+        .card h3 {
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .buscar-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .buscar-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .buscar-row input:focus { border-color: #38bdf8; }
+        .buscar-row input.cantidad { width: 80px; flex: none; }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.85; }
+        .btn-primary { background: #3b82f6; color: white; }
+
+        .tabla-carrito {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .tabla-carrito th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tabla-carrito td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .tabla-carrito tbody tr:hover { background: #f8fafc; }
+
+        .btn-eliminar {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .carrito-vacio {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .resumen-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        /* ===== MÉTODO DE PAGO ===== */
+        .btn-metodo {
+            flex: 1;
+            padding: 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .btn-metodo:hover { border-color: #94a3b8; }
+
+        .btn-metodo.activo {
+            border-color: #1e293b;
+            background: #1e293b;
+            color: white;
+        }
+
+        .pago-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 12px 0;
+            outline: none;
+            text-align: right;
+        }
+
+        .pago-input:focus { border-color: #475569; }
+
+        .cambio-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .btn-cobrar {
+            width: 100%;
+            padding: 14px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-cobrar:hover { background: #334155; }
+        .btn-cobrar:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        .btn-limpiar {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* ===== MODAL FACTURA ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.activo { display: flex; }
+
+        .factura {
+            background: white;
+            width: 380px;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .factura-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .factura-header h2 { font-size: 20px; color: #1e293b; }
+        .factura-header p { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+        .factura-info p { font-size: 13px; color: #475569; margin: 4px 0; }
+
+        .factura-detalle-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 13px;
+            color: #64748b;
+            margin: 12px 0 6px;
+        }
+
+        .factura-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #334155;
+            padding: 4px 0;
+        }
+
+        .factura-totales p {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #475569;
+            padding: 4px 0;
+        }
+
+        .total-final {
+            font-size: 16px !important;
+            font-weight: bold;
+            color: #1e293b !important;
+            padding: 8px 0 !important;
+        }
+
+        .mensaje-final {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        .factura-botones {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .factura-botones button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #btnImprimir { background: #1e293b; color: white; }
+        #btnCerrarFactura { background: #f1f5f9; color: #475569; }
+
+        @media print {
+            .sidebar, .main-content > *:not(#modalFactura) { display: none; }
+            .modal { position: static; background: none; }
+            .factura-botones { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>💼 POS</h2>
+        <p id="nombreEmpleado"></p>
+    </div>
+    <nav class="menu">
+        <a href="ventas.html" class="active">🧾 Ventas</a>
+        <a href="reporte-stock.html">⚠️ Stock crítico</a>
+        <a href="historial-ventas.html">📋 Mis ventas</a>
+        <a href="perfil.html">👤 Mi perfil</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>🧾 Punto de Venta</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <div class="pos-layout">
+
+        <!-- IZQUIERDO -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <h3>🔍 Agregar producto</h3>
+                <div class="buscar-row">
+                    <input type="text" id="codigoProducto"
+                        placeholder="Escanear o escribir código de barras"
+                        autocomplete="off">
+                    <input type="number" id="cantidad"
+                        class="cantidad" value="1" min="1">
+                    <button class="btn btn-primary" id="btnAgregar">Agregar</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🛒 Carrito</h3>
+                <table class="tabla-carrito">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cant.</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaVenta">
+                        <tr>
+                            <td colspan="5" class="carrito-vacio">
+                                Sin productos agregados
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DERECHO -->
+        <div class="card" style="align-self: start;">
+            <h3>💰 Resumen de cobro</h3>
+
+            <div class="resumen-item">
+                <span>Productos</span>
+                <span id="cantProductos">0</span>
+            </div>
+            <div class="resumen-item">
+                <span>Subtotal</span>
+                <span>$<span id="subtotalDisplay">0.00</span></span>
+            </div>
+            <div class="resumen-item">
+                <span>IVA (0%)</span>
+                <span>$0.00</span>
+            </div>
+            <div class="resumen-total">
+                <span>TOTAL</span>
+                <span>$<span id="total">0.00</span></span>
+            </div>
+
+            <!-- MÉTODO DE PAGO -->
+            <label style="font-size: 13px; color: #64748b; margin-bottom: 8px; display:block; margin-top:8px;">
+                Método de pago
+            </label>
+            <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+                <button class="btn-metodo activo" id="btnEfectivo" onclick="seleccionarMetodo('efectivo')">
+                    💵 Efectivo
+                </button>
+                <button class="btn-metodo" id="btnTarjeta" onclick="seleccionarMetodo('tarjeta')">
+                    💳 Tarjeta
+                </button>
+            </div>
+
+            <!-- SECCIÓN EFECTIVO -->
+            <div id="seccionPago">
+                <label style="font-size: 13px; color: #64748b;">Monto recibido</label>
+                <input type="number" id="pago" class="pago-input"
+                    placeholder="$0.00" step="0.01" min="0">
+                <div class="cambio-box">
+                    <span>Cambio</span>
+                    <span>$<span id="cambio">0.00</span></span>
+                </div>
+            </div>
+
+            <!-- SECCIÓN TARJETA -->
+            <div id="seccionTarjeta" style="display:none;">
+                <div class="cambio-box" style="background:#f8fafc; border-color:#e2e8f0; color:#1e293b;">
+                    <span>💳 Cobro exacto</span>
+                    <span>$<span id="totalTarjeta">0.00</span></span>
+                </div>
+            </div>
+
+            <button class="btn-cobrar" id="btnCobrar">✅ Cobrar</button>
+            <button class="btn-limpiar" onclick="limpiarCarrito()">🗑 Limpiar carrito</button>
+        </div>
+
+    </div>
+</main>
+
+<!-- MODAL FACTURA -->
+<div id="modalFactura" class="modal">
+    <div class="factura">
+        <div class="factura-header">
+            <h2>🏪 TIENDA POS</h2>
+            <p>NIT: 900123456-7</p>
+            <p>Calle 10 #5-20 | Tel: 300 123 4567</p>
+        </div>
+
+        <hr>
+
+        <div class="factura-info">
+            <p><strong>Factura #:</strong> <span id="facturaId"></span></p>
+            <p><strong>Fecha:</strong> <span id="facturaFecha"></span></p>
+            <p><strong>Atendido por:</strong> <span id="facturaEmpleado"></span></p>
+            <p><strong>Método de pago:</strong> <span id="facturaMetodoPago"></span></p>
+        </div>
+
+        <hr>
+
+        <div class="factura-detalle-header">
+            <span>Producto</span>
+            <span>Total</span>
+        </div>
+
+        <div id="facturaDetalle"></div>
+
+        <hr>
+
+        <div class="factura-totales">
+            <p><span>Subtotal</span><span>$<span id="facturaSubtotal"></span></span></p>
+            <p><span>IVA (0%)</span><span>$0.00</span></p>
+            <p class="total-final">
+                <span>TOTAL</span>
+                <span>$<span id="facturaTotal"></span></span>
+            </p>
+            <p><span>Pago recibido</span><span>$<span id="facturaPago"></span></span></p>
+            <p><span>Cambio</span><span>$<span id="facturaCambio"></span></span></p>
+        </div>
+
+        <hr>
+        <p class="mensaje-final">¡Gracias por su compra! 🙏</p>
+
+        <div class="factura-botones">
+            <button id="btnImprimir">🖨 Imprimir</button>
+            <button id="btnCerrarFactura">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/ventas.js"></script>
+<script>
+    const rol = localStorage.getItem("rol");
+    const usuario = localStorage.getItem("usuario");
+
+    if (!rol || !usuario || rol !== "EMPLEADO") {
+        window.location.href = "../login.html";
+    }
+
+    document.getElementById("nombreEmpleado").textContent = usuario;
+    document.getElementById("facturaEmpleado").textContent = usuario;
+
+    function actualizarFechaHora() {
+        document.getElementById("fechaHora").textContent =
+            new Date().toLocaleDateString() + " " +
+            new Date().toLocaleTimeString();
+    }
+    setInterval(actualizarFechaHora, 1000);
+    actualizarFechaHora();
+
+    document.getElementById("pago").addEventListener("input", () => {
+        const pago = parseFloat(document.getElementById("pago").value) || 0;
+        const total = parseFloat(document.getElementById("total").textContent) || 0;
+        const cambio = pago - total;
+        document.getElementById("cambio").textContent =
+            cambio >= 0 ? cambio.toFixed(2) : "0.00";
+    });
+
+    function limpiarCarrito() {
+        if (confirm("¿Limpiar el carrito?")) {
+            carrito = [];
+            total = 0;
+            actualizarTabla();
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("rol");
+        window.location.href = "../login.html";
+    }
+</script>
+</body>
+</html>

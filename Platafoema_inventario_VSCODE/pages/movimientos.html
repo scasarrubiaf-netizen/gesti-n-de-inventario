@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos | Inventarios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .sidebar-footer button:hover { background: #334155; }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+            max-width: 500px;
+        }
+
+        .resumen-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .resumen-box span:first-child {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .resumen-box span:last-child {
+            font-size: 26px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .filtros-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filtros-row select {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+        }
+
+        .filtros-row select:focus { border-color: #475569; }
+
+        .tabla-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .info-auto {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>📦 Inventarios</h2>
+    </div>
+    <nav class="menu">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="productos.html">📦 Productos</a>
+        <a href="movimientos.html" class="active">🔄 Movimientos</a>
+        <a href="categorias.html">🗂 Categorías</a>
+        <a href="estadisticas.html">📈 Estadísticas</a>
+        <a href="productos-mas-vendidos.html">🏆 Más vendidos</a>
+        <a href="reporte-stock.html">📉 Reporte stock</a>
+        <a href="valor-inventario.html">💰 Valor inventario</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>🔄 Movimientos de Inventario</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <div class="info-auto">
+        ℹ️ Los movimientos se registran automáticamente — las <strong>entradas</strong> cuando se crea o actualiza un producto, y las <strong>salidas</strong> cuando se realiza una venta.
+    </div>
+
+    <div class="resumen-grid">
+        <div class="resumen-box">
+            <span>📥 Entradas esta semana</span>
+            <span id="totalEntradas">0</span>
+        </div>
+        <div class="resumen-box">
+            <span>📤 Salidas esta semana</span>
+            <span id="totalSalidas">0</span>
+        </div>
+    </div>
+
+    <div class="filtros-row">
+        <select id="filtroProducto" onchange="filtrarMovimientos()">
+            <option value="">Todos los productos</option>
+        </select>
+        <select id="filtroTipo" onchange="filtrarMovimientos()">
+            <option value="">Todos los tipos</option>
+            <option value="ENTRADA">📥 Entradas</option>
+            <option value="SALIDA">📤 Salidas</option>
+        </select>
+        <select id="filtroPeriodo" onchange="filtrarMovimientos()">
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="todo">Todos</option>
+        </select>
+    </div>
+
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="movimientosBody"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<script src="../js/movimientos.js"></script>
+<script>
+    const rol = localStorage.getItem("rol");
+    const usuario = localStorage.getItem("usuario");
+    if (!rol || !usuario || rol !== "ADMIN") {
+        window.location.href = "../login.html";
+    }
+    function logout() {
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("rol");
+        window.location.href = "../login.html";
+    }
+</script>
+</body>
+</html>
+
+

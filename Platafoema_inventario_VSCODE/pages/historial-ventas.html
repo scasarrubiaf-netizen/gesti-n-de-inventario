@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Ventas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .sidebar-footer button:hover { background: #334155; }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .resumen-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .resumen-card span:first-child {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .resumen-card span:last-child {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .filtros-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filtros-card select,
+        .filtros-card input {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+        }
+
+        .filtros-card select:focus,
+        .filtros-card input:focus { border-color: #475569; }
+
+        .btn-filtrar {
+            padding: 9px 18px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-filtrar:hover { background: #334155; }
+
+        .tabla-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        .btn-ver {
+            padding: 5px 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .btn-ver:hover { background: #e2e8f0; }
+
+        .sin-datos {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Modal detalle venta */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.activo { display: flex; }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h3 { font-size: 16px; color: #1e293b; }
+
+        .btn-cerrar {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .detalle-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .detalle-info p {
+            font-size: 13px;
+            color: #475569;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detalle-info p span:last-child {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .detalle-productos {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 14px;
+        }
+
+        .detalle-productos h4 {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .detalle-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #334155;
+            padding: 6px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .detalle-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+            color: #1e293b;
+            padding-top: 12px;
+            margin-top: 4px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2 id="sidebarTitulo"></h2>
+        <p id="nombreSidebar"></p>
+    </div>
+    <nav class="menu" id="menuNav"></nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>🧾 Historial de Ventas</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="resumen-grid">
+        <div class="resumen-card">
+            <span>Total ventas</span>
+            <span id="totalVentas">0</span>
+        </div>
+        <div class="resumen-card">
+            <span>Total recaudado</span>
+            <span id="totalRecaudado">$0.00</span>
+        </div>
+        <div class="resumen-card">
+            <span>Promedio por venta</span>
+            <span id="promedio">$0.00</span>
+        </div>
+    </div>
+
+    <!-- FILTROS (solo admin) -->
+    <div class="filtros-card" id="filtrosAdmin" style="display:none;">
+        <select id="filtroEmpleado">
+            <option value="">Todos los empleados</option>
+        </select>
+        <input type="date" id="filtroFecha">
+        <button class="btn-filtrar" onclick="cargarVentas()">Filtrar</button>
+        <button class="btn-filtrar" style="background:#475569;" onclick="limpiarFiltros()">Limpiar</button>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th id="colEmpleado">Empleado</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Cambio</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody id="tablaVentas"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<!-- MODAL DETALLE -->
+<div id="modalDetalle" class="modal">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>🧾 Detalle de venta</h3>
+            <button class="btn-cerrar" onclick="cerrarDetalle()">✕</button>
+        </div>
+        <div class="detalle-info">
+            <p><span>Fecha</span><span id="detallesFecha"></span></p>
+            <p><span>Empleado</span><span id="detallesEmpleado"></span></p>
+            <p><span>Pago recibido</span><span id="detallesPago"></span></p>
+            <p><span>Cambio</span><span id="detallesCambio"></span></p>
+        </div>
+        <div class="detalle-productos">
+            <h4>Productos vendidos</h4>
+            <div id="detallesProductos"></div>
+            <div class="detalle-total">
+                <span>TOTAL</span>
+                <span id="detallesTotal"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/historial-ventas.js"></script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías | Inventarios</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(56,189,248,0.15);
+            color: #38bdf8;
+            border-left: 3px solid #38bdf8;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+        }
+
+        .card h3 {
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-grupo { margin-bottom: 12px; }
+
+        .form-grupo label {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+
+        .form-grupo input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-grupo input:focus { border-color: #475569; }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 11px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .btn-guardar:hover { background: #334155; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        .btn-eliminar {
+            padding: 5px 12px;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-eliminar:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+        .mensaje {
+            font-size: 13px;
+            margin-top: 8px;
+            min-height: 18px;
+            color: #16a34a;
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>📦 Inventarios</h2>
+    </div>
+    <nav class="menu">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="productos.html">📦 Productos</a>
+        <a href="movimientos.html">🔄 Movimientos</a>
+        <a href="categorias.html" class="active">🗂 Categorías</a>
+        <a href="estadisticas.html">📈 Estadísticas</a>
+        <a href="productos-mas-vendidos.html">🏆 Más vendidos</a>
+        <a href="reporte-stock.html">📉 Reporte stock</a>
+        <a href="valor-inventario.html">💰 Valor inventario</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>🗂 Gestión de Categorías</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <div class="layout">
+
+        <!-- FORMULARIO -->
+        <div class="card">
+            <h3>Nueva categoría</h3>
+            <div class="form-grupo">
+                <label>Nombre</label>
+                <input type="text" id="nombreCategoria" placeholder="Ej: Electrónica">
+            </div>
+            <p class="mensaje" id="mensajeCategoria"></p>
+            <button class="btn-guardar" onclick="guardarCategoria()">Guardar</button>
+        </div>
+
+        <!-- TABLA -->
+        <div class="card">
+            <h3>Categorías registradas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCategorias"></tbody>
+            </table>
+        </div>
+
+    </div>
+</main>
+
+<script src="../js/categorias.js"></script>
+<script>
+    const rol = localStorage.getItem("rol");
+    const usuario = localStorage.getItem("usuario");
+
+    if (!rol || !usuario || rol !== "ADMIN") {
+        window.location.href = "../login.html";
+    }
+
+    function logout() {
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("rol");
+        window.location.href = "../login.html";
+    }
+</script>
+</body>
+</html>

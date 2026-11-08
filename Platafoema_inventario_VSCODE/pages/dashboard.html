@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Inventarios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .sidebar-footer button:hover { background: #334155; }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .resumen-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .resumen-card span:first-child {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .resumen-card span:last-child {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        .form-registro {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: flex-end;
+        }
+
+        .form-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-grupo label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .form-grupo input {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 220px;
+            outline: none;
+        }
+
+        .form-grupo input:focus { border-color: #475569; }
+
+        .btn-registrar {
+            padding: 10px 24px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-registrar:hover { background: #334155; }
+
+        .mensaje-ok { color: #16a34a; font-size: 13px; }
+        .mensaje-error { color: #dc2626; font-size: 13px; }
+
+        .badge-activo {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-activo.activo { background: #f0fdf4; color: #16a34a; }
+        .badge-activo.inactivo { background: #fef2f2; color: #dc2626; }
+
+        .btn-accion {
+            padding: 5px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #f1f5f9;
+            color: #475569;
+            margin-right: 4px;
+        }
+
+        .btn-accion:hover { background: #e2e8f0; }
+
+        /* Modal editar */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.activo { display: flex; }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-contenido h3 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-form-grupo { margin-bottom: 14px; }
+
+        .modal-form-grupo label {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .modal-form-grupo input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .modal-form-grupo input:focus { border-color: #475569; }
+
+        .modal-acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-guardar-modal {
+            flex: 1;
+            padding: 11px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-cancelar-modal {
+            flex: 1;
+            padding: 11px;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>📦 Inventarios</h2>
+        <p id="nombreUsuario"></p>
+    </div>
+    <nav class="menu">
+        <a href="dashboard.html" class="active">📊 Dashboard</a>
+        <a href="productos.html">📦 Productos</a>
+        <a href="movimientos.html">🔄 Movimientos</a>
+        <a href="categorias.html">🗂 Categorías</a>
+        <a href="estadisticas.html">📈 Estadísticas</a>
+        <a href="productos-mas-vendidos.html">🏆 Más vendidos</a>
+        <a href="reporte-stock.html">📉 Reporte stock</a>
+        <a href="valor-inventario.html">💰 Valor inventario</a>
+        <a href="historial-ventas.html">🧾 Historial ventas</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="resumen-grid">
+        <div class="resumen-card">
+            <span>📦 Productos</span>
+            <span id="totalProductos">0</span>
+        </div>
+        <div class="resumen-card">
+            <span>🗂 Categorías</span>
+            <span id="totalCategorias">0</span>
+        </div>
+        <div class="resumen-card">
+            <span>🔄 Movimientos</span>
+            <span id="totalMovimientos">0</span>
+        </div>
+        <div class="resumen-card">
+            <span>📦 Stock total</span>
+            <span id="stockTotal">0</span>
+        </div>
+    </div>
+
+    <!-- REGISTRO DE EMPLEADOS -->
+    <div class="card">
+        <h2>👤 Registrar nuevo empleado</h2>
+        <div class="form-registro">
+            <div class="form-grupo">
+                <label>Usuario</label>
+                <input type="text" id="nuevoUsername" placeholder="Nombre de usuario">
+            </div>
+            <div class="form-grupo">
+                <label>Contraseña</label>
+                <input type="password" id="nuevoPassword" placeholder="Contraseña">
+            </div>
+            <button class="btn-registrar" onclick="registrarEmpleado()">➕ Registrar</button>
+        </div>
+        <p id="mensajeRegistro" style="min-height: 20px;"></p>
+
+        <h3 style="font-size:15px; color:#1e293b; margin: 16px 0 10px;">Empleados registrados</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaEmpleados"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<!-- MODAL EDITAR EMPLEADO -->
+<div id="modalEditar" class="modal">
+    <div class="modal-contenido">
+        <h3>✏️ Editar empleado</h3>
+        <input type="hidden" id="editarId">
+        <div class="modal-form-grupo">
+            <label>Nombre de usuario</label>
+            <input type="text" id="editarUsername" placeholder="Nuevo nombre de usuario">
+        </div>
+        <div class="modal-acciones">
+            <button class="btn-guardar-modal" onclick="guardarEdicion()">💾 Guardar</button>
+            <button class="btn-cancelar-modal" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/dashboard.js"></script>
+<script>
+    const rol = localStorage.getItem("rol");
+    const usuario = localStorage.getItem("usuario");
+
+    if (!rol || !usuario || rol !== "ADMIN") {
+        window.location.href = "../login.html";
+    }
+
+    document.getElementById("nombreUsuario").textContent = usuario;
+
+    function logout() {
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("rol");
+        window.location.href = "../login.html";
+    }
+
+    // ===== EDITAR EMPLEADO =====
+    function abrirEditar(id, username) {
+        document.getElementById("editarId").value = id;
+        document.getElementById("editarUsername").value = username;
+        document.getElementById("modalEditar").classList.add("activo");
+    }
+
+    function cerrarModal() {
+        document.getElementById("modalEditar").classList.remove("activo");
+    }
+
+    function guardarEdicion() {
+        const id = document.getElementById("editarId").value;
+        const username = document.getElementById("editarUsername").value.trim();
+
+        if (!username) return;
+
+        fetch(`http://localhost:8080/api/usuarios/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                cerrarModal();
+                cargarEmpleados();
+            }
+        });
+    }
+
+    // ===== ACTIVAR / DESACTIVAR =====
+    function toggleEmpleado(id) {
+        fetch(`http://localhost:8080/api/usuarios/${id}/toggle`, {
+            method: "PUT"
+        })
+        .then(res => res.json())
+        .then(() => cargarEmpleados());
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Java y Spring Boot
+**/target/
+**/.idea/
+**/*.iml
+**/*.class
+
+# Frontend
+**/node_modules/
+**/dist/
+**/build/
+
+# Archivos privados
+**/.env
+**/.env.*
+!**/.env.example
+**/*.pem
+**/*.key
+
+# Archivos temporales
+*.log
+Thumbs.db
+.DS_Store
+
+# Archivos internos de MariaDB
+inventarios_db/*.frm
+inventarios_db/*.ibd
+inventarios_db/db.opt

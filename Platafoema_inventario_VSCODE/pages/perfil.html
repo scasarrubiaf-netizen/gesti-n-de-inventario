@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | Inventarios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 { font-size: 20px; color: #38bdf8; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu { padding: 16px 0; flex: 1; }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 10px;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .sidebar-footer button:hover { background: #334155; }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 22px; color: #1e293b; }
+        #fechaHora { font-size: 13px; color: #64748b; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .perfil-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: #1e293b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 16px;
+        }
+
+        .perfil-card h3 {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .perfil-card .rol-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .perfil-info {
+            text-align: left;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .perfil-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .perfil-info-item span:first-child { color: #64748b; }
+        .perfil-info-item span:last-child { color: #1e293b; font-weight: 500; }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 24px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-grupo { margin-bottom: 16px; }
+
+        .form-grupo label {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-wrapper { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .form-grupo input {
+            width: 100%;
+            padding: 11px 12px 11px 36px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .form-grupo input:focus { border-color: #1e293b; }
+
+        .requisitos {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .requisitos p { margin-bottom: 4px; font-weight: 500; color: #475569; }
+
+        .requisito {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 12px;
+        }
+
+        .requisito.ok { color: #16a34a; }
+        .requisito.fail { color: #94a3b8; }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 12px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-guardar:hover { background: #334155; }
+
+        .mensaje {
+            font-size: 13px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        .mensaje.ok { background: #f0fdf4; color: #16a34a; display: block; }
+        .mensaje.error { background: #fef2f2; color: #dc2626; display: block; }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>💼 POS</h2>
+        <p id="nombreSidebar"></p>
+    </div>
+    <nav class="menu">
+        <a href="ventas.html">🧾 Ventas</a>
+        <a href="reporte-stock.html">⚠️ Stock crítico</a>
+        <a href="perfil.html" class="active">👤 Mi perfil</a>
+    </nav>
+    <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <h1>👤 Mi Perfil</h1>
+        <span id="fechaHora"></span>
+    </div>
+
+    <div class="layout">
+
+        <div class="perfil-card">
+            <div class="avatar">👤</div>
+            <h3 id="perfilNombre"></h3>
+            <span class="rol-badge" id="perfilRol"></span>
+
+            <div class="perfil-info">
+                <div class="perfil-info-item">
+                    <span>Usuario</span>
+                    <span id="perfilUsername"></span>
+                </div>
+                <div class="perfil-info-item">
+                    <span>Rol</span>
+                    <span id="perfilRol2"></span>
+                </div>
+                <div class="perfil-info-item">
+                    <span>Estado</span>
+                    <span>✅ Activo</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🔑 Cambiar contraseña</h3>
+
+            <div class="form-grupo">
+                <label>Contraseña actual</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="passwordActual" placeholder="Tu contraseña actual">
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Nueva contraseña</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="passwordNueva" placeholder="Nueva contraseña">
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label>Confirmar nueva contraseña</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="passwordConfirmar" placeholder="Repite la nueva contraseña">
+                </div>
+            </div>
+
+            <div class="requisitos">
+                <p>Requisitos de la contraseña:</p>
+                <div class="requisito fail" id="req-longitud">○ Mínimo 6 caracteres</div>
+                <div class="requisito fail" id="req-coincide">○ Las contraseñas coinciden</div>
+            </div>
+
+            <button class="btn-guardar" id="btnGuardar">
+                💾 Guardar nueva contraseña
+            </button>
+
+            <p class="mensaje" id="mensajeCambio"></p>
+        </div>
+
+    </div>
+</main>
+
+<script src="../js/perfil.js"></script>
+</body>
+</html>
