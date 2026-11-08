@@ -39,7 +39,7 @@ function iniciarSesion() {
 
     errorMsg.textContent = "";
 
-    fetch("http://localhost:8080/api/auth/login", {
+    fetch("https://inventario-backend-97dc.onrender.com/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
