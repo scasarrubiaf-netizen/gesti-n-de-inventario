@@ -1,3 +1,4 @@
+
 package com.inventarios.plataforma_inventarios.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +13,8 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://127.0.0.1:5500",
-                        "http://localhost:5500"
+                        "http://localhost:5500",
+                        "https://gesti-n-de-inventario-kgk6.onrender.com"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
