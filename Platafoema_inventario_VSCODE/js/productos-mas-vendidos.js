@@ -1,5 +1,5 @@
-const API_MOVIMIENTOS = "http://localhost:8080/api/movimientos";
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
+const API_MOVIMIENTOS = "https://inventario-backend-97dc.onrender.com/api/movimientos";
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
 
 document.addEventListener("DOMContentLoaded", () => {
     mostrarFechaHora();
@@ -14,8 +14,14 @@ function mostrarFechaHora() {
 
 function cargarProductosMasVendidos() {
     Promise.all([
-        fetch(API_MOVIMIENTOS).then(r => r.json()),
-        fetch(API_PRODUCTOS).then(r => r.json())
+        fetch(API_MOVIMIENTOS).then(r => {
+            if (!r.ok) throw new Error("Error al cargar los movimientos");
+            return r.json();
+        }),
+        fetch(API_PRODUCTOS).then(r => {
+            if (!r.ok) throw new Error("Error al cargar los productos");
+            return r.json();
+        })
     ]).then(([movimientos, productos]) => {
 
         const salidas = movimientos.filter(m => m.tipo === "SALIDA");
@@ -49,6 +55,9 @@ function cargarProductosMasVendidos() {
 
         crearGrafica(datos);
         crearRanking(datos);
+
+    }).catch(error => {
+        console.error("Error al cargar los productos más vendidos:", error);
     });
 }
 

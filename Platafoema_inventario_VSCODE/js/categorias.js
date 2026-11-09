@@ -1,4 +1,4 @@
-const API_CATEGORIAS = "http://localhost:8080/api/categorias";
+const API_CATEGORIAS = "https://inventario-backend-97dc.onrender.com/api/categorias";
 
 document.addEventListener("DOMContentLoaded", () => {
     listarCategorias();
@@ -11,13 +11,19 @@ function iniciarReloj() {
         document.getElementById("fechaHora").textContent =
             ahora.toLocaleDateString() + " " + ahora.toLocaleTimeString();
     }
+
     actualizar();
     setInterval(actualizar, 1000);
 }
 
 function listarCategorias() {
     fetch(API_CATEGORIAS)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("No se pudieron cargar las categorías");
+            }
+            return res.json();
+        })
         .then(data => {
             const tbody = document.getElementById("tablaCategorias");
             tbody.innerHTML = "";
@@ -40,6 +46,9 @@ function listarCategorias() {
                     </tr>
                 `;
             });
+        })
+        .catch(error => {
+            console.error("Error al listar categorías:", error);
         });
 }
 
@@ -58,12 +67,26 @@ function guardarCategoria() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre })
     })
+    .then(async res => {
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || "No se pudo guardar la categoría");
+        }
+
+        return data;
+    })
     .then(() => {
         document.getElementById("nombreCategoria").value = "";
         mensaje.style.color = "#16a34a";
         mensaje.textContent = "✅ Categoría guardada";
         setTimeout(() => mensaje.textContent = "", 3000);
         listarCategorias();
+    })
+    .catch(error => {
+        console.error("Error al guardar categoría:", error);
+        mensaje.style.color = "#dc2626";
+        mensaje.textContent = error.message || "Error conectando con el servidor";
     });
 }
 
@@ -71,5 +94,14 @@ function eliminarCategoria(id) {
     if (!confirm("¿Eliminar esta categoría?")) return;
 
     fetch(`${API_CATEGORIAS}/${id}`, { method: "DELETE" })
-        .then(() => listarCategorias());
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("No se pudo eliminar la categoría");
+            }
+            listarCategorias();
+        })
+        .catch(error => {
+            console.error("Error al eliminar categoría:", error);
+            alert(error.message);
+        });
 }

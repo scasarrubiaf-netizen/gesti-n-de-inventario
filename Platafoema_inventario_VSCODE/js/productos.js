@@ -1,5 +1,6 @@
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
-const API_CATEGORIAS = "http://localhost:8080/api/categorias";
+
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
+const API_CATEGORIAS = "https://inventario-backend-97dc.onrender.com/api/categorias";
 
 let productos = [];
 let productoEditandoId = null;
@@ -27,7 +28,8 @@ function listarProductos() {
         .then(data => {
             productos = data;
             pintarTabla(data);
-        });
+        })
+        .catch(error => console.error("Error al cargar productos:", error));
 }
 
 function pintarTabla(lista) {
@@ -111,7 +113,8 @@ function guardarProducto() {
     .then(() => {
         cerrarModal();
         listarProductos();
-    });
+    })
+    .catch(error => console.error("Error al guardar producto:", error));
 }
 
 function editarProducto(id) {
@@ -128,13 +131,16 @@ function editarProducto(id) {
             productoEditandoId = p.id;
             document.getElementById("tituloModal").textContent = "Editar producto";
             document.getElementById("modalProducto").classList.add("activo");
-        });
+        })
+        .catch(error => console.error("Error al consultar producto:", error));
 }
 
 function eliminarProducto(id) {
     if (!confirm("¿Eliminar este producto?")) return;
+
     fetch(`${API_PRODUCTOS}/${id}`, { method: "DELETE" })
-        .then(() => listarProductos());
+        .then(() => listarProductos())
+        .catch(error => console.error("Error al eliminar producto:", error));
 }
 
 function cargarCategorias() {
@@ -143,10 +149,12 @@ function cargarCategorias() {
         .then(data => {
             const select = document.getElementById("categoria");
             select.innerHTML = "<option value=''>Seleccione categoría</option>";
+
             data.forEach(c => {
                 select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar categorías:", error));
 }
 
 function limpiarFormulario() {

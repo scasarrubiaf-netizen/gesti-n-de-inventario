@@ -1,5 +1,6 @@
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
-const API_MOVIMIENTOS = "http://localhost:8080/api/movimientos";
+
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
+const API_MOVIMIENTOS = "https://inventario-backend-97dc.onrender.com/api/movimientos";
 
 let todosLosMovimientos = [];
 
@@ -23,7 +24,8 @@ function cargarFiltroProductos() {
             data.forEach(p => {
                 select.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar productos:", error));
 }
 
 function listarMovimientos() {
@@ -32,7 +34,8 @@ function listarMovimientos() {
         .then(data => {
             todosLosMovimientos = data;
             filtrarMovimientos();
-        });
+        })
+        .catch(error => console.error("Error al cargar movimientos:", error));
 }
 
 function filtrarMovimientos() {
@@ -51,6 +54,7 @@ function filtrarMovimientos() {
     }
 
     const ahora = new Date();
+
     if (periodo === "semana") {
         const inicioSemana = new Date(ahora);
         inicioSemana.setDate(ahora.getDate() - ahora.getDay());
@@ -75,6 +79,7 @@ function renderMovimientos(data) {
     inicioSemana.setHours(0, 0, 0, 0);
 
     let entradas = 0, salidas = 0;
+
     todosLosMovimientos.forEach(m => {
         if (new Date(m.fecha) >= inicioSemana) {
             if (m.tipo === "ENTRADA") entradas += m.cantidad;

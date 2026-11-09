@@ -1,5 +1,6 @@
-const API_MOVIMIENTOS = "http://localhost:8080/api/movimientos";
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
+
+const API_MOVIMIENTOS = "https://inventario-backend-97dc.onrender.com/api/movimientos";
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
 
 let chart1, chart2, chart3;
 
@@ -19,9 +20,16 @@ function cargarEstadisticas() {
     const anioFiltro = document.getElementById("anio").value;
 
     Promise.all([
-        fetch(API_MOVIMIENTOS).then(r => r.json()),
-        fetch(API_PRODUCTOS).then(r => r.json())
-    ]).then(([movimientos, productos]) => {
+        fetch(API_MOVIMIENTOS).then(r => {
+            if (!r.ok) throw new Error("Error al consultar movimientos");
+            return r.json();
+        }),
+        fetch(API_PRODUCTOS).then(r => {
+            if (!r.ok) throw new Error("Error al consultar productos");
+            return r.json();
+        })
+    ])
+    .then(([movimientos, productos]) => {
 
         let salidas = movimientos.filter(m => m.tipo === "SALIDA");
 
@@ -36,6 +44,7 @@ function cargarEstadisticas() {
         }
 
         const ventas = {};
+
         salidas.forEach(m => {
             const id = m.producto.id;
             ventas[id] = (ventas[id] || 0) + m.cantidad;
@@ -53,12 +62,17 @@ function cargarEstadisticas() {
         const top = datos[0];
 
         document.getElementById("totalVendido").textContent = totalVendido;
-        document.getElementById("topProducto").textContent = top && top.ventas > 0 ? top.nombre : "—";
+        document.getElementById("topProducto").textContent =
+            top && top.ventas > 0 ? top.nombre : "—";
         document.getElementById("sinVentas").textContent = sinVentas;
 
         crearMasVendidos(datos.slice(0, 5));
         crearMenosVendidos([...datos].reverse().slice(0, 5));
         crearVentasVsStock(datos);
+    })
+    .catch(error => {
+        console.error("Error al cargar estadísticas:", error);
+        alert("No se pudieron cargar las estadísticas. Intenta nuevamente.");
     });
 }
 
@@ -75,6 +89,7 @@ const opcionesBase = {
 
 function crearMasVendidos(data) {
     if (chart1) chart1.destroy();
+
     chart1 = new Chart(document.getElementById("graficaMasVendidos"), {
         type: "bar",
         data: {
@@ -92,6 +107,7 @@ function crearMasVendidos(data) {
 
 function crearMenosVendidos(data) {
     if (chart2) chart2.destroy();
+
     chart2 = new Chart(document.getElementById("graficaMenosVendidos"), {
         type: "bar",
         data: {
@@ -109,6 +125,7 @@ function crearMenosVendidos(data) {
 
 function crearVentasVsStock(data) {
     if (chart3) chart3.destroy();
+
     chart3 = new Chart(document.getElementById("graficaVentasStock"), {
         type: "line",
         data: {

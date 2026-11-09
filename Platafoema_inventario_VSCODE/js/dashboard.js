@@ -1,4 +1,3 @@
-
 const API_URL = "https://inventario-backend-97dc.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,7 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function cargarDashboard() {
     fetch(`${API_URL}/api/dashboard`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error("Error al cargar el dashboard");
+            return response.json();
+        })
         .then(data => {
             document.getElementById("totalProductos").textContent = data.totalProductos;
             document.getElementById("totalCategorias").textContent = data.totalCategorias;
@@ -62,7 +64,10 @@ function registrarEmpleado() {
 
 function cargarEmpleados() {
     fetch(`${API_URL}/api/usuarios`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Error al cargar empleados");
+            return res.json();
+        })
         .then(usuarios => {
             const tbody = document.getElementById("tablaEmpleados");
             tbody.innerHTML = "";
@@ -94,5 +99,6 @@ function cargarEmpleados() {
                     </tr>
                 `;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar empleados:", error));
 }

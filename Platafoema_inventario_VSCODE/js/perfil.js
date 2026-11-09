@@ -1,5 +1,9 @@
+
 const usuario = localStorage.getItem("usuario");
 const rol = localStorage.getItem("rol");
+
+const API_USUARIOS = "https://inventario-backend-97dc.onrender.com/api/usuarios";
+const esAdmin = rol === "ADMINISTRADOR" || rol === "ADMIN";
 
 if (!rol || !usuario) {
     window.location.href = "../login.html";
@@ -8,8 +12,8 @@ if (!rol || !usuario) {
 // Llenar datos del perfil
 document.getElementById("perfilNombre").textContent = usuario;
 document.getElementById("perfilUsername").textContent = usuario;
-document.getElementById("perfilRol").textContent = rol === "ADMIN" ? "Administrador" : "Empleado";
-document.getElementById("perfilRol2").textContent = rol === "ADMIN" ? "Administrador" : "Empleado";
+document.getElementById("perfilRol").textContent = esAdmin ? "Administrador" : "Empleado";
+document.getElementById("perfilRol2").textContent = esAdmin ? "Administrador" : "Empleado";
 document.getElementById("nombreSidebar").textContent = usuario;
 
 // Fecha y hora
@@ -17,6 +21,7 @@ function actualizarHora() {
     document.getElementById("fechaHora").textContent =
         new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString();
 }
+
 actualizarHora();
 setInterval(actualizarHora, 1000);
 
@@ -70,7 +75,7 @@ function cambiarPassword() {
         return;
     }
 
-    fetch("http://localhost:8080/api/usuarios/cambiar-password", {
+    fetch(`${API_USUARIOS}/cambiar-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -93,7 +98,8 @@ function cambiarPassword() {
             validarRequisitos();
         }
     })
-    .catch(() => {
+    .catch(error => {
+        console.error("Error al cambiar contraseña:", error);
         mensaje.className = "mensaje error";
         mensaje.textContent = "Error conectando con el servidor";
     });

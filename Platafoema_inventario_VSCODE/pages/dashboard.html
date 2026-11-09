@@ -410,12 +410,13 @@
 <script>
     const rol = localStorage.getItem("rol");
     const usuario = localStorage.getItem("usuario");
+    const API_USUARIOS_BASE = "https://inventario-backend-97dc.onrender.com/api/usuarios";
 
-    if (!rol || !usuario || rol !== "ADMIN") {
+    if (!rol || !usuario || (rol !== "ADMINISTRADOR" && rol !== "ADMIN")) {
         window.location.href = "../login.html";
     }
 
-    document.getElementById("nombreUsuario").textContent = usuario;
+    document.getElementById("nombreUsuario").textContent = usuario || "";
 
     function logout() {
         localStorage.removeItem("usuario");
@@ -440,7 +441,7 @@
 
         if (!username) return;
 
-        fetch(`http://localhost:8080/api/usuarios/${id}`, {
+        fetch(`${API_USUARIOS_BASE}/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username })
@@ -453,17 +454,26 @@
                 cerrarModal();
                 cargarEmpleados();
             }
+        })
+        .catch(error => {
+            console.error("Error al editar empleado:", error);
+            alert("Error al conectar con el servidor");
         });
     }
 
     // ===== ACTIVAR / DESACTIVAR =====
     function toggleEmpleado(id) {
-        fetch(`http://localhost:8080/api/usuarios/${id}/toggle`, {
+        fetch(`${API_USUARIOS_BASE}/${id}/toggle`, {
             method: "PUT"
         })
-        .then(res => res.json())
-        .then(() => cargarEmpleados());
+        .then(res => {
+            if (!res.ok) throw new Error("No se pudo cambiar el estado");
+            return res.json();
+        })
+        .then(() => cargarEmpleados())
+        .catch(error => {
+            console.error("Error al cambiar estado:", error);
+            alert("Error al conectar con el servidor");
+        });
     }
 </script>
-</body>
-</html>

@@ -1,4 +1,4 @@
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
 
 let todosLosProductos = [];
 
@@ -15,7 +15,12 @@ function mostrarFechaHora() {
 
 function cargarValorInventario() {
     fetch(API_PRODUCTOS)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Error al cargar los productos");
+            }
+            return res.json();
+        })
         .then(data => {
             todosLosProductos = data;
 
@@ -28,6 +33,9 @@ function cargarValorInventario() {
             document.getElementById("totalUnidades").textContent = totalUnidades;
 
             pintarTabla(data);
+        })
+        .catch(error => {
+            console.error("Error al cargar el valor del inventario:", error);
         });
 }
 

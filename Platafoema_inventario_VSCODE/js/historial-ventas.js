@@ -1,19 +1,23 @@
-const API_VENTAS = "http://localhost:8080/api/ventas";
-const API_USUARIOS = "http://localhost:8080/api/usuarios";
+
+const API_VENTAS = "https://inventario-backend-97dc.onrender.com/api/ventas";
+const API_USUARIOS = "https://inventario-backend-97dc.onrender.com/api/usuarios";
 
 const rol = localStorage.getItem("rol");
 const usuario = localStorage.getItem("usuario");
+
+const esAdmin = rol === "ADMINISTRADOR" || rol === "ADMIN";
 
 if (!rol || !usuario) {
     window.location.href = "../login.html";
 }
 
 // ===== SIDEBAR SEGÚN ROL =====
-document.getElementById("sidebarTitulo").textContent = rol === "ADMIN" ? "📦 Inventarios" : "💼 POS";
+document.getElementById("sidebarTitulo").textContent = esAdmin ? "📦 Inventarios" : "💼 POS";
 document.getElementById("nombreSidebar").textContent = usuario;
 
 const menuNav = document.getElementById("menuNav");
-if (rol === "ADMIN") {
+
+if (esAdmin) {
     menuNav.innerHTML = `
         <a href="dashboard.html">📊 Dashboard</a>
         <a href="productos.html">📦 Productos</a>
@@ -25,7 +29,7 @@ if (rol === "ADMIN") {
         <a href="valor-inventario.html">💰 Valor inventario</a>
         <a href="historial-ventas.html" class="active">🧾 Historial ventas</a>
     `;
-    // Mostrar filtros y columna empleado
+
     document.getElementById("filtrosAdmin").style.display = "flex";
     cargarFiltroEmpleados();
 } else {
@@ -35,7 +39,7 @@ if (rol === "ADMIN") {
         <a href="perfil.html">👤 Mi perfil</a>
         <a href="historial-ventas.html" class="active">📋 Mis ventas</a>
     `;
-    // Ocultar columna empleado para empleado
+
     document.getElementById("colEmpleado").style.display = "none";
 }
 
@@ -44,19 +48,25 @@ function actualizarHora() {
     document.getElementById("fechaHora").textContent =
         new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString();
 }
+
 actualizarHora();
 setInterval(actualizarHora, 1000);
 
 // ===== CARGAR FILTRO EMPLEADOS (solo admin) =====
 function cargarFiltroEmpleados() {
     fetch(API_USUARIOS)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Error al consultar usuarios");
+            return res.json();
+        })
         .then(usuarios => {
             const select = document.getElementById("filtroEmpleado");
+
             usuarios.forEach(u => {
                 select.innerHTML += `<option value="${u.username}">${u.username}</option>`;
             });
-        });
+        })
+        .catch(error => console.error("Error al cargar empleados:", error));
 }
 
 // ===== CARGAR VENTAS =====
@@ -64,19 +74,23 @@ function cargarVentas() {
     let url = API_VENTAS;
 
     if (rol === "EMPLEADO") {
-        url = `${API_VENTAS}/empleado/${usuario}`;
+        url = `${API_VENTAS}/empleado/${encodeURIComponent(usuario)}`;
     } else {
         const filtroEmpleado = document.getElementById("filtroEmpleado")?.value;
+
         if (filtroEmpleado) {
-            url = `${API_VENTAS}/empleado/${filtroEmpleado}`;
+            url = `${API_VENTAS}/empleado/${encodeURIComponent(filtroEmpleado)}`;
         }
     }
 
     fetch(url)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Error al consultar ventas");
+            return res.json();
+        })
         .then(ventas => {
-            // Filtrar por fecha si aplica
             const filtroFecha = document.getElementById("filtroFecha")?.value;
+
             if (filtroFecha) {
                 ventas = ventas.filter(v =>
                     new Date(v.fecha).toLocaleDateString() ===
@@ -86,6 +100,10 @@ function cargarVentas() {
 
             actualizarResumen(ventas);
             pintarTabla(ventas);
+        })
+        .catch(error => {
+            console.error("Error al cargar ventas:", error);
+            alert("No se pudieron cargar las ventas.");
         });
 }
 

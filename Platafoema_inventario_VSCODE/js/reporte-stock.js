@@ -1,4 +1,4 @@
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarReporte();
@@ -13,7 +13,12 @@ function mostrarFechaHora() {
 
 function cargarReporte() {
     fetch(API_PRODUCTOS)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Error al cargar los productos");
+            }
+            return res.json();
+        })
         .then(data => {
             const criticos = data.filter(p => p.cantidad <= p.stockMinimo);
 
@@ -30,6 +35,9 @@ function cargarReporte() {
             }
 
             pintarTabla(criticos);
+        })
+        .catch(error => {
+            console.error("Error al cargar el reporte de stock:", error);
         });
 }
 

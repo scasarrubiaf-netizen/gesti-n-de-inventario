@@ -1,5 +1,6 @@
-const API_PRODUCTOS = "http://localhost:8080/api/productos";
-const API_VENTAS = "http://localhost:8080/api/ventas";
+
+const API_PRODUCTOS = "https://inventario-backend-97dc.onrender.com/api/productos";
+const API_VENTAS = "https://inventario-backend-97dc.onrender.com/api/ventas";
 
 let carrito = [];
 let total = 0;
@@ -49,7 +50,7 @@ function agregarProducto() {
 
     fetch(`${API_PRODUCTOS}/codigo/${codigo}`)
         .then(res => {
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error("Producto no encontrado");
             return res.json();
         })
         .then(p => {
@@ -75,7 +76,10 @@ function agregarProducto() {
             cantidadInput.value = 1;
             codigoInput.focus();
         })
-        .catch(() => alert("Producto no encontrado"));
+        .catch(error => {
+            console.error("Error al buscar producto:", error);
+            alert("Producto no encontrado");
+        });
 }
 
 /* ================= ACTUALIZAR TABLA ================= */
@@ -176,17 +180,20 @@ function finalizarVenta() {
             }))
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error("No se pudo procesar la venta");
+        return res.json();
+    })
     .then(() => {
         mostrarFactura({ pago, total, cambio, detalles: carrito, metodoPago });
         carrito = [];
         total = 0;
         actualizarTabla();
         document.getElementById("pago").value = "";
-        // Resetear método de pago
         seleccionarMetodo("efectivo");
     })
-    .catch(() => {
+    .catch(error => {
+        console.error("Error al procesar la venta:", error);
         alert("Error al procesar la venta");
     })
     .finally(() => {
