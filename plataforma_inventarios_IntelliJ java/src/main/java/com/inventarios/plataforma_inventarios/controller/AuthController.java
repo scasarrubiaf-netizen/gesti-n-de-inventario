@@ -37,9 +37,4 @@ public class AuthController {
         ));
     }
 
-    // TEMPORAL - solo para generar el hash, bórralo después
-    @GetMapping("/encriptar/{pass}")
-    public String encriptar(@PathVariable String pass) {
-        return passwordEncoder.encode(pass);
-    }
 }
