@@ -1,3 +1,6 @@
+
+const API_URL = "https://inventario-backend-97dc.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     cargarDashboard();
     mostrarFechaHora();
@@ -6,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function cargarDashboard() {
-    fetch("http://localhost:8080/api/dashboard")
+    fetch(`${API_URL}/api/dashboard`)
         .then(response => response.json())
         .then(data => {
             document.getElementById("totalProductos").textContent = data.totalProductos;
@@ -33,7 +36,7 @@ function registrarEmpleado() {
         return;
     }
 
-    fetch("http://localhost:8080/api/usuarios", {
+    fetch(`${API_URL}/api/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -58,7 +61,7 @@ function registrarEmpleado() {
 }
 
 function cargarEmpleados() {
-    fetch("http://localhost:8080/api/usuarios")
+    fetch(`${API_URL}/api/usuarios`)
         .then(res => res.json())
         .then(usuarios => {
             const tbody = document.getElementById("tablaEmpleados");
