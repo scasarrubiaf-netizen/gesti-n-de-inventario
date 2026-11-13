@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function cargarDashboard() {
-    fetch(`${API_URL}/api/dashboard`)
+    fetch(`${API_URL}/api/dashboard/resumen`)
         .then(response => {
             if (!response.ok) throw new Error("Error al cargar el dashboard");
             return response.json();
