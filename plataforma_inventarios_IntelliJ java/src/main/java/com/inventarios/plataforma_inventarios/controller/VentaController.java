@@ -1,12 +1,16 @@
+
 package com.inventarios.plataforma_inventarios.controller;
 
 import com.inventarios.plataforma_inventarios.dto.DetalleVentaRequest;
 import com.inventarios.plataforma_inventarios.dto.VentaRequest;
 import com.inventarios.plataforma_inventarios.model.DetalleVenta;
+import com.inventarios.plataforma_inventarios.model.MovimientoInventario;
 import com.inventarios.plataforma_inventarios.model.Producto;
 import com.inventarios.plataforma_inventarios.model.Venta;
+import com.inventarios.plataforma_inventarios.repository.MovimientoInventarioRepository;
 import com.inventarios.plataforma_inventarios.repository.ProductoRepository;
 import com.inventarios.plataforma_inventarios.repository.VentaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -19,14 +23,22 @@ public class VentaController {
 
     private final VentaRepository ventaRepo;
     private final ProductoRepository productoRepo;
+    private final MovimientoInventarioRepository movimientoRepo;
 
-    public VentaController(VentaRepository ventaRepo, ProductoRepository productoRepo) {
+    public VentaController(
+            VentaRepository ventaRepo,
+            ProductoRepository productoRepo,
+            MovimientoInventarioRepository movimientoRepo) {
+
         this.ventaRepo = ventaRepo;
         this.productoRepo = productoRepo;
+        this.movimientoRepo = movimientoRepo;
     }
 
     @PostMapping
+    @Transactional
     public Venta registrarVenta(@RequestBody VentaRequest request) {
+
         Venta venta = new Venta();
         venta.setPago(request.getPago());
         venta.setEmpleado(request.getEmpleado());
@@ -36,6 +48,7 @@ public class VentaController {
         double total = 0;
 
         for (DetalleVentaRequest d : request.getDetalles()) {
+
             Producto producto = productoRepo.findById(d.getProductoId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
@@ -49,12 +62,22 @@ public class VentaController {
             detalle.setPrecio(producto.getPrecio());
 
             double subtotal = producto.getPrecio() * d.getCantidad();
+
             detalle.setSubtotal(subtotal);
             detalle.setVenta(venta);
             detalles.add(detalle);
 
+            // Descontar existencias una sola vez
             producto.setCantidad(producto.getCantidad() - d.getCantidad());
             productoRepo.save(producto);
+
+            // Registrar movimiento de salida sin volver a descontar stock
+            MovimientoInventario movimiento = new MovimientoInventario();
+            movimiento.setProducto(producto);
+            movimiento.setCantidad(d.getCantidad());
+            movimiento.setTipo("SALIDA");
+
+            movimientoRepo.save(movimiento);
 
             total += subtotal;
         }

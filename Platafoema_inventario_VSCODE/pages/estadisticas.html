@@ -299,9 +299,9 @@
     const rol = localStorage.getItem("rol");
     const usuario = localStorage.getItem("usuario");
 
-    if (!rol || !usuario || rol !== "ADMIN") {
-        window.location.href = "../login.html";
-    }
+    if (!rol || !usuario || (rol !== "ADMINISTRADOR" && rol !== "ADMIN")) {
+    window.location.href = "../login.html";
+}
 
     function logout() {
         localStorage.removeItem("usuario");
